@@ -19,14 +19,8 @@ const mockData = {
 };
 
 export default function App() {
-  const [selections, setSelections] = useState<Record<string, string>>({
-    activity: 'Customer',
-    customer: 'Kunde A',
-    project: 'Projekt A',
-    role: 'UX',
-    billing: 'Billable'
-  });
-  const [comment, setComment] = useState('attended Meeting XYZ');
+  const [selections, setSelections] = useState<Record<string, string>>({});
+  const [comment, setComment] = useState('');
 
   // Determine which columns should be visible based on current selections
   const visibleColumns = useMemo(() => {
@@ -353,16 +347,13 @@ export default function App() {
         ))}
 
         {/* Status Circle */}
-        <div className="absolute bg-[#1d1d1d] left-[1433px] rounded-[93.5px] size-[187px] top-[41px] cursor-pointer" onClick={handleAction}>
-          <div className="flex flex-col items-center justify-center relative size-full">
-            <div className="box-border content-stretch flex flex-col gap-2.5 items-center justify-center px-[43px] py-[66px] relative size-[187px]">
-              <div className="box-border content-stretch flex flex-col gap-4 items-center justify-center p-0 relative shrink-0 w-[100px]">
-                <div className="font-['Lexend:Regular',_sans-serif] font-normal leading-[0] relative shrink-0 text-[#ffffff] text-[12px] text-center w-full">
-                  <p className="block leading-[1.5] whitespace-pre-wrap">{getStatusMessage()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="absolute left-[1433px] top-[41px]">
+          <StatusCircle
+            status={getStatusType() as 'next' | 'ready' | 'complete'}
+            message={getStatusMessage()}
+            onClick={handleAction}
+            canProceed={!!isComplete}
+          />
         </div>
       </div>
     </div>
