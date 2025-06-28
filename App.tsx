@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { StatusCircle } from "./components/StatusCircle";
+import type { SelectionState } from "./types";
 
 // Mock data
 const mockData = {
@@ -18,14 +19,16 @@ const mockData = {
   absenceTypes: ['Vacation', 'Sick Leave', 'Bank Holiday', 'Wellness Day', 'Personal Day']
 };
 
+const initialSelections: SelectionState = {
+  activity: 'Customer',
+  customer: 'Kunde A',
+  project: 'Projekt A',
+  role: 'UX',
+  billing: 'Billable',
+};
+
 export default function App() {
-  const [selections, setSelections] = useState<Record<string, string>>({
-    activity: 'Customer',
-    customer: 'Kunde A',
-    project: 'Projekt A',
-    role: 'UX',
-    billing: 'Billable'
-  });
+  const [selections, setSelections] = useState<SelectionState>(initialSelections);
   const [comment, setComment] = useState('attended Meeting XYZ');
 
   // Determine which columns should be visible based on current selections
@@ -111,7 +114,7 @@ export default function App() {
         alert('Timer gestartet!');
       }
       // Reset form
-      setSelections({});
+      setSelections(initialSelections);
       setComment('');
     }
   };

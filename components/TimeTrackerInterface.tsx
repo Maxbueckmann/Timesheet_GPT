@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import type { SelectionState } from "../types";
 import { AppleStylePicker } from "./AppleStylePicker";
 import { HorizontalSelectionContainer } from "./HorizontalSelectionContainer";
 import { SelectedOption } from "./SelectedOption";
@@ -22,10 +23,12 @@ const mockData = {
   absenceTypes: ['Vacation', 'Sick Leave', 'Bank Holiday', 'Wellness Day', 'Personal Day']
 };
 
+const initialSelections: SelectionState = {
+  activity: mockData.activities[0],
+};
+
 export function TimeTrackerInterface() {
-  const [selections, setSelections] = useState<Record<string, string>>({
-    activity: mockData.activities[0],
-  });
+  const [selections, setSelections] = useState<SelectionState>(initialSelections);
   const [comment, setComment] = useState('');
 
   // Determine which columns should be visible based on current selections
@@ -167,7 +170,7 @@ export function TimeTrackerInterface() {
         alert('Timer gestartet!');
       }
       // Reset form
-      setSelections({});
+      setSelections(initialSelections);
       setComment('');
     }
   };
