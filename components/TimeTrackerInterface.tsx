@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AppleStylePicker } from "./AppleStylePicker";
 import { HorizontalSelectionContainer } from "./HorizontalSelectionContainer";
 import { SelectedOption } from "./SelectedOption";
@@ -23,7 +23,9 @@ const mockData = {
 };
 
 export function TimeTrackerInterface() {
-  const [selections, setSelections] = useState<Record<string, string>>({});
+  const [selections, setSelections] = useState<Record<string, string>>({
+    activity: mockData.activities[0],
+  });
   const [comment, setComment] = useState('');
 
   // Determine which columns should be visible based on current selections
@@ -58,6 +60,31 @@ export function TimeTrackerInterface() {
     
     return columns;
   }, [selections]);
+
+  // Automatically select the first option when a column becomes visible
+  useEffect(() => {
+    if (visibleColumns.includes('customer') && selections.activity === 'Customer' && !selections.customer) {
+      handleSelection('customer', mockData.customers[0]);
+    }
+    if (visibleColumns.includes('project') && selections.customer && !selections.project) {
+      const customerProjects = mockData.projects[selections.customer as keyof typeof mockData.projects] || [];
+      if (customerProjects.length > 0) {
+        handleSelection('project', customerProjects[0]);
+      }
+    }
+    if (visibleColumns.includes('role') && selections.project && !selections.role) {
+      handleSelection('role', mockData.roles[0]);
+    }
+    if (visibleColumns.includes('billing') && selections.role && !selections.billing) {
+      handleSelection('billing', mockData.billingOptions[0]);
+    }
+    if (visibleColumns.includes('internalCategory') && selections.activity === 'Internal' && !selections.internalCategory) {
+      handleSelection('internalCategory', mockData.internalCategories[0]);
+    }
+    if (visibleColumns.includes('absenceType') && selections.activity === 'Absence' && !selections.absenceType) {
+      handleSelection('absenceType', mockData.absenceTypes[0]);
+    }
+  }, [visibleColumns]);
 
   const handleSelection = (column: string, value: string) => {
     const newSelections = { ...selections };
@@ -252,58 +279,38 @@ export function TimeTrackerInterface() {
   };
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
-      {/* Selected options in horizontal container */}
-      <div className="absolute left-[76px] top-[97px]">
-        <HorizontalSelectionContainer>
-          {renderSelectedOptions()}
-        </HorizontalSelectionContainer>
-      </div>
+    <div className="flex flex-col items-center w-full min-h-screen bg-black text-white py-8 px-4 overflow-hidden">
+      {/* Selected options */}
+      <HorizontalSelectionContainer className="mb-10">
+        {renderSelectedOptions()}
+      </HorizontalSelectionContainer>
 
-      {/* Status Circle */}
-      <div className="absolute right-[93px] top-[41px]">
-        <StatusCircle
-          status={getStatusType()}
-          message={getStatusMessage()}
-          canProceed={true}
-          onClick={handleAction}
-        />
-      </div>
-
-      {/* Apple Style Pickers positioned around the selected options */}
-      <div className="absolute left-0 top-[175px] w-full h-[400px]">
-        {visibleColumns.map((column, index) => {
-          if (column === 'comment') {
-            return (
-              <div 
-                key={column}
-                className="absolute"
-                style={{ left: 76 + index * 237 }}
-              >
-                <input
-                  type="text"
-                  value={comment}
-                  onChange={(e) => handleCommentChange(e.target.value)}
-                  placeholder="attended Meeting XYZ"
-                  className="w-[219px] h-[63px] bg-transparent border-[0.5px] border-[rgba(255,255,255,0.5)] rounded-lg p-[10px] text-[11px] text-[rgba(255,255,255,0.5)] font-light"
-                />
-              </div>
-            );
-          }
-          
-          return (
-            <div 
+      <div className="flex w-full justify-center gap-8 overflow-x-auto">
+        {visibleColumns.map((column) => (
+          column === 'comment' ? (
+            <input
               key={column}
-              className="absolute"
-              style={{ 
-                left: 76 + index * 237,
-                top: 0
-              }}
-            >
+              type="text"
+              value={comment}
+              onChange={(e) => handleCommentChange(e.target.value)}
+              placeholder="attended Meeting XYZ"
+              className="w-[219px] h-[63px] bg-transparent border-[0.5px] border-[rgba(255,255,255,0.5)] rounded-lg p-[10px] text-[11px] text-[rgba(255,255,255,0.5)] font-light transition-all"
+            />
+          ) : (
+            <div key={column} className="max-h-[240px] overflow-y-auto">
               {renderPicker(column)}
             </div>
-          );
-        })}
+          )
+        ))}
+
+        <div className="ml-6 flex-shrink-0">
+          <StatusCircle
+            status={getStatusType()}
+            message={getStatusMessage()}
+            canProceed={true}
+            onClick={handleAction}
+          />
+        </div>
       </div>
     </div>
   );
