@@ -18,5 +18,11 @@ export interface WorkflowStep {
 }
 
 export interface SelectionState {
-  [key: string]: string;
+  activity?: 'Customer' | 'Internal' | 'Absence';
+  customer?: string;
+  project?: string;
+  role?: string;
+  billing?: string;
+  internalCategory?: string;
+  absenceType?: string;
 }
